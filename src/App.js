@@ -6,6 +6,31 @@ import { useRef } from "react";
 const OTP_DIGIT_LENGTH = 5;
 const OTPInputBox = ({ no_of_digits }) => {
   //Create an Empty array based on the no_of_digits
+  const handlePaste = (e) => {
+    e.preventDefault();
+    console.log("The pasted event is ", e);
+    const pastedData = e.clipboardData.getData("Text").trim();
+    console.log("The Trimmed pasteddata us ", pastedData);
+    const digits = pastedData.split("").filter((char) => !isNaN(char));
+
+    if (digits.length === 0) return;
+
+    const newArray = [...inputArray];
+    for (let i = 0; i < no_of_digits; i++) {
+      if (digits[i]) {
+        newArray[i] = digits[i];
+      }
+    }
+
+    setinputArray(newArray);
+
+    // Move focus to the next empty input (or last)
+    const firstEmptyIndex = newArray.findIndex((v) => v === "");
+    const focusIndex =
+      firstEmptyIndex === -1 ? no_of_digits - 1 : firstEmptyIndex;
+    inputRef.current[focusIndex]?.focus();
+  };
+
   console.log("The current length is ", no_of_digits);
   const [inputArray, setinputArray] = useState(
     new Array(no_of_digits).fill("")
@@ -46,6 +71,7 @@ const OTPInputBox = ({ no_of_digits }) => {
           ref={(input) => (inputRef.current[index] = input)}
           onChange={(e) => handleInputChange(e.target.value, index)}
           onKeyDown={(e) => handleOnKeyDown(e, index)}
+          onPaste={handlePaste}
         ></input>
       ))}
     </>
